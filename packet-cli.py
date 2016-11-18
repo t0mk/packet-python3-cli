@@ -5,10 +5,24 @@ import os
 import argh
 import inspect
 import pprint
+import tabulate
+
+DEBUG=False
+WIDE=False
 
 TOKEN = os.environ['PACKET_TOKEN']
 
 manager = packet.Manager(auth_token=TOKEN)
+
+ATTRMAP = {
+    packet.Project: ['name', 'id'],
+    packet.OperatingSystem: ['name', 'id'],
+    packet.SSHKey: ['label', 'id', 'key'],
+    packet.Plan: ['name','id', 'slug'],
+    packet.Device: ['hostname','id', 'operating_system', 'state', ('addresses',
+                     lambda r: [r['address'] for r in r.ip_addresses])],
+    #packet.Facilty: ['name','code', 'id', 'features'],
+    }
 
 class C:
     blue = '\033[94m'
@@ -34,48 +48,83 @@ def color_loop():
         yield G
         yield B
 
+def get_headers(cl):
+    if DEBUG:
+        print("getting headers of", cl)
+    ret = []
+    for i in ATTRMAP[cl]:
+        if type(i) is str:
+            ret.append(i)
+        elif type(i) is tuple:
+            ret.append(i[0])
+    return ret
 
-def colprint(*args):
-    l = [f(str(i)) for f,i in zip(color_loop(), args)]
-    print(*l)
+def cut(s):
+    if not WIDE:
+        return s[:36]
+    else:
+        return s
+
+def colorize(l):
+    return [f(cut(str(i))) for f,i in zip(color_loop(), l)]
+
+def attrget(res):
+    if DEBUG:
+        print('attrget of',type(res), res)
+    ret = []
+    for i in ATTRMAP[type(res)]:
+        if type(i) is tuple:
+            # i[1] should be a function extracting some info from the resource
+            _item = i[1](res)
+        else:
+            _item = getattr(res, i)
+        ret.append(_item)
+    return ret
 
 
 def show_res(r):
-    just_name_and_id = [packet.Project, packet.OperatingSystem]
-    if type(r) in just_name_and_id:
-        colprint(r.name, r.id)
-    elif type(r) is packet.SSHKey:
-        colprint(r.label, r.id, r.key)
-    elif type(r) is packet.Facility:
-        colprint(r.name, r.code, r.id, r.features)
-    elif type(r) is packet.Plan:
-        colprint(r.name, r.id, r.slug)
-    elif type(r) is packet.Device:
-        colprint(r.hostname, r.id, r.operating_system, r.state,
-                 [i['address'] for i in r.ip_addresses])
+    if DEBUG:
+        print("about to show", r)
+    if type(r) is list:
+        if len(r) == 0:
+            print("Empty list")
+            return
+        header = colorize(get_headers(type(r[0])))
+        tab_list = [attrget(i) for i in r]
+        tab_list_color = [colorize(i) for i in tab_list]
+        print(tabulate.tabulate(tab_list_color, headers=header))
+    elif type(r) in ATTRMAP.keys():
+        header = colorize(get_headers(type(r)))
+        tab_list_color = [colorize(attrget(r))]
+        print(tabulate.tabulate(tab_list_color, headers=header))
     else:
         pprint.pprint(r)
 
 
-
 def deco(f):
-    def temp_fun(*args,**kwargs):
+    def decorated_fun(*args,**kwargs):
+        for a in ['d', 'debug']:
+            if a in kwargs:
+                global DEBUG
+                DEBUG=kwargs.pop(a)
+        for a in ['w', 'wide']:
+            if a in kwargs:
+                global WIDE
+                WIDE=kwargs.pop(a)
         out = f(*args, **kwargs)
-        #print(type(out))
-        if type(out) is list:
-            for i in out:
-                show_res(i)
-        else:
-            show_res(out)
+        if DEBUG:
+            print(type(out))
+        show_res(out)
          
-    temp_fun.__name__ = f.__name__
-    return temp_fun
+    decorated_fun.__name__ = f.__name__
+    return decorated_fun
 
-exposed_methods = [deco(m[1]) for m in methods]
-
-parser = argh.ArghParser()
 
 if __name__ == "__main__":
+    exposed_methods = [deco(m[1]) for m in methods]
+    parser = argh.ArghParser()
+    parser.add_argument('-d', '--debug', action='store_true')
+    parser.add_argument('-w', '--wide', action='store_true')
     parser.add_commands(exposed_methods)
     parser.dispatch()
 
