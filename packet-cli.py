@@ -6,6 +6,7 @@ import argh
 import inspect
 import pprint
 import tabulate
+import yaml
 
 DEBUG=False
 WIDE=False
@@ -14,6 +15,10 @@ TOKEN = os.environ['PACKET_TOKEN']
 
 manager = packet.Manager(auth_token=TOKEN)
 
+# if you disagree with displayed attributes of resources, just change this
+# dict. You can see relevant source code in
+# https://github.com/packethost/packet-python/tree/master/packet
+
 ATTRMAP = {
     packet.Project: ['name', 'id'],
     packet.OperatingSystem: ['name', 'id'],
@@ -21,7 +26,7 @@ ATTRMAP = {
     packet.Plan: ['name','id', 'slug'],
     packet.Device: ['hostname','id', 'operating_system', 'state', ('addresses',
                      lambda r: [r['address'] for r in r.ip_addresses])],
-    #packet.Facilty: ['name','code', 'id', 'features'],
+    packet.Facility: ['name','code', 'id', 'features'],
     }
 
 class C:
@@ -111,10 +116,14 @@ def deco(f):
             if a in kwargs:
                 global WIDE
                 WIDE=kwargs.pop(a)
-        out = f(*args, **kwargs)
+        for a in ['p', 'params']:
+            if a in kwargs:
+                _params = yaml.load(kwargs[a])
+                kwargs[a] = _params
+        orig_fn_output = f(*args, **kwargs)
         if DEBUG:
-            print(type(out))
-        show_res(out)
+            print(type(orig_fn_output))
+        show_res(orig_fn_output)
          
     decorated_fun.__name__ = f.__name__
     return decorated_fun
