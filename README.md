@@ -12,6 +12,8 @@ $ pip3 install packet-python argh tabulate
 
 ## Example Usage
 
+You will need your API token exported in env var PACKET\_TOKEN
+
 ```
 $ packet-cli help
 $ packet-cli list-projects
