@@ -11,7 +11,7 @@ import yaml
 DEBUG=False
 WIDE=False
 
-TOKEN = os.environ['PACKET_TOKEN']
+TOKEN = os.environ['PACKET_API_TOKEN']
 
 manager = packet.Manager(auth_token=TOKEN)
 

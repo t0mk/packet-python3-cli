@@ -12,7 +12,7 @@ $ pip3 install packet-python argh tabulate
 
 ## Example Usage
 
-You will need your API token exported in env var PACKET\_TOKEN
+You will need your API token exported in env var PACKET\_API\_TOKEN
 
 ```
 $ packet-cli help
@@ -21,6 +21,7 @@ $ packet-cli list-devices 89b497ee-5afc-420a-8fb5-56984898f444
 $ packet-cli list-plans
 $ packet-cli list-facilities
 $ packet-cli create-device 89b497ee-5afc-420a-8fb5-56984898f444 anstest88 baremetal_0 ams1 ubuntu_16_04_image
-$ packet-cli call-api /devices/6865479e-14d2-492d-ae61-e63dff813229 DELETE packet-cli list-facilities
+$ packet-cli call-api /devices/6865479e-14d2-492d-ae61-e63dff813229 DELETE
+$ packet-cli list-facilities
 ```
 
