@@ -118,8 +118,11 @@ def deco(f):
                 WIDE=kwargs.pop(a)
         for a in ['p', 'params']:
             if a in kwargs:
-                _params = yaml.load(kwargs[a])
-                kwargs[a] = _params
+                if kwargs[a] is None:
+                    kwargs.pop(a)
+                else:
+                    _params = yaml.load(kwargs[a])
+                    kwargs[a] = _params
         orig_fn_output = f(*args, **kwargs)
         if DEBUG:
             print(type(orig_fn_output))
@@ -134,6 +137,7 @@ if __name__ == "__main__":
     parser = argh.ArghParser()
     parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('-w', '--wide', action='store_true')
+    parser.add_argument('-p', '--params')
     parser.add_commands(exposed_methods)
     parser.dispatch()
 
