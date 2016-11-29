@@ -21,11 +21,11 @@ manager = packet.Manager(auth_token=TOKEN)
 
 ATTRMAP = {
     packet.Project: ['name', 'id'],
-    packet.OperatingSystem: ['name', 'id'],
+    packet.OperatingSystem: ['name','slug'],
     packet.SSHKey: ['label', 'id', 'key'],
     packet.Plan: ['name','id', 'slug'],
-    packet.Device: ['hostname','id', 'operating_system', 'state', ('addresses',
-                     lambda r: [r['address'] for r in r.ip_addresses])],
+    packet.Device: ['hostname','id', 'operating_system', 'state', 'locked',
+           ('addresses', lambda r: [r['address'] for r in r.ip_addresses])],
     packet.Facility: ['name','code', 'id', 'features'],
     }
 
@@ -123,6 +123,9 @@ def deco(f):
                 else:
                     _params = yaml.load(kwargs[a])
                     kwargs[a] = _params
+        if DEBUG:
+            print("args", args)
+            print("kwargs", kwargs)
         orig_fn_output = f(*args, **kwargs)
         if DEBUG:
             print(type(orig_fn_output))
