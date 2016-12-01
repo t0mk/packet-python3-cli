@@ -73,9 +73,11 @@ def cut(s):
 def colorize(l):
     return [f(cut(str(i))) for f,i in zip(color_loop(), l)]
 
+
 def attrget(res):
     if DEBUG:
         print('attrget of',type(res), res)
+        
     ret = []
     for i in ATTRMAP[type(res)]:
         if type(i) is tuple:
@@ -86,10 +88,14 @@ def attrget(res):
         ret.append(_item)
     return ret
 
+def get_dict(obj):
+    return {name: getattr(obj, name) for name in dir(obj)
+            if not name.startswith('__')} 
 
 def show_res(r):
     if DEBUG:
         print("about to show", r)
+        pprint.pprint(get_dict(r))
     if type(r) is list:
         if len(r) == 0:
             print("Empty list")
