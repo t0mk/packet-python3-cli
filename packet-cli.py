@@ -93,18 +93,21 @@ def get_dict(obj):
             if not name.startswith('__')} 
 
 def show_res(r):
-    if DEBUG:
-        print("about to show", r)
-        pprint.pprint(get_dict(r))
     if type(r) is list:
         if len(r) == 0:
             print("Empty list")
             return
+        if DEBUG:
+            print("about to show", r[0])
+            pprint.pprint([get_dict(i) for i in r])
         header = colorize(get_headers(type(r[0])))
         tab_list = [attrget(i) for i in r]
         tab_list_color = [colorize(i) for i in tab_list]
         print(tabulate.tabulate(tab_list_color, headers=header))
     elif type(r) in ATTRMAP.keys():
+        if DEBUG:
+            print("about to show", r)
+            pprint.pprint(get_dict(r))
         header = colorize(get_headers(type(r)))
         tab_list_color = [colorize(attrget(r))]
         print(tabulate.tabulate(tab_list_color, headers=header))
