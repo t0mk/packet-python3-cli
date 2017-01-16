@@ -24,7 +24,11 @@ ATTRMAP = {
     packet.OperatingSystem: ['name','slug'],
     packet.SSHKey: ['label', 'id', 'key'],
     packet.Plan: ['name','id', 'slug'],
-    packet.Device: ['hostname','id', 'operating_system', 'state', 'locked',
+    packet.Device: ['hostname','id', 'operating_system',
+           ('facility', lambda d: d.facility['code']),
+           ('plan', lambda d: d.plan['slug']),
+           'state', 
+           'locked',
            ('addresses', lambda r: [r['address'] for r in r.ip_addresses])],
     packet.Facility: ['name','code', 'id', 'features'],
     }
