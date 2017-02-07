@@ -148,8 +148,18 @@ def deco(f):
     return decorated_fun
 
 
+def wipe_project(project_id):
+    ds = manager.list_devices(project_id)
+    for d in ds:
+        m = "devices/%s" % d.id
+        if d.locked:
+            manager.call_api(m, "PATCH", {"locked": False})
+        manager.call_api(m, "DELETE")
+
+
 if __name__ == "__main__":
     exposed_methods = [deco(m[1]) for m in methods]
+    exposed_methods.append(wipe_project)
     parser = argh.ArghParser()
     parser.add_argument('-d', '--debug', action='store_true')
     parser.add_argument('-w', '--wide', action='store_true')
