@@ -32,13 +32,17 @@ $ packet-cli list-operating-systems
 
 # create device in a project, there's name, plan, faciltiy and OS
 $ packet-cli create-device 89b497ee-5afc-420a-8fb5-56984898f444 anstest88 baremetal_0 ams1 ubuntu_16_04_image
+
 # power off device:
 $ packet-cli -p "{type: power_off }" call-api /devices/95108175-2b85-48e1-bf3f-81a4a4b21131/actions POST
+
 # remove device
 $ packet-cli call-api /devices/6865479e-14d2-492d-ae61-e63dff813229 DELETE
 
 # lock device
 $ packet-cli --params "{locked : true }" call-api devices/d39ecd03-d5df-4252-8bc6-f558d53a86bf PATCH
 
+# create new SSH key
+$ packet-cli create-ssh-key newkeylabel "`cat keys/key.pub`"
 ```
 
