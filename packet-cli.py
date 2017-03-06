@@ -31,6 +31,7 @@ ATTRMAP = {
            'locked',
            ('addresses', lambda r: [r['address'] for r in r.ip_addresses])],
     packet.Facility: ['name','code', 'id', 'features'],
+    packet.Volume: ['description','id', 'size', 'billing_cycle', 'attached_to'],
     }
 
 class C:
@@ -136,6 +137,8 @@ def deco(f):
                 else:
                     _params = yaml.load(kwargs[a])
                     kwargs[a] = _params
+        #args = list(args)
+        #args[3] = int(args[3])
         if DEBUG:
             print("args", args)
             print("kwargs", kwargs)
