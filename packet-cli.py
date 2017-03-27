@@ -142,7 +142,11 @@ def deco(f):
         if DEBUG:
             print("args", args)
             print("kwargs", kwargs)
-        orig_fn_output = f(*args, **kwargs)
+        try:
+            orig_fn_output = f(*args, **kwargs)
+        except packet.baseapi.Error as e:
+            print(", ".join(e._cause.response.json()['errors']))
+            return
         if DEBUG:
             print(type(orig_fn_output))
         show_res(orig_fn_output)
