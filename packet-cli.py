@@ -82,7 +82,7 @@ def colorize(l):
 def attrget(res):
     if DEBUG:
         print('attrget of',type(res), res)
-        
+
     ret = []
     for i in ATTRMAP[type(res)]:
         if type(i) is tuple:
@@ -142,15 +142,11 @@ def deco(f):
         if DEBUG:
             print("args", args)
             print("kwargs", kwargs)
-        try:
-            orig_fn_output = f(*args, **kwargs)
-        except packet.baseapi.Error as e:
-            print(", ".join(e._cause.response.json()['errors']))
-            return
+        orig_fn_output = f(*args, **kwargs)
         if DEBUG:
             print(type(orig_fn_output))
         show_res(orig_fn_output)
-         
+
     decorated_fun.__name__ = f.__name__
     return decorated_fun
 
@@ -172,6 +168,11 @@ if __name__ == "__main__":
     parser.add_argument('-w', '--wide', action='store_true')
     parser.add_argument('-p', '--params')
     parser.add_commands(exposed_methods)
-    parser.dispatch()
+    try:
+        parser.dispatch()
+    except packet.baseapi.Error as e:
+        print(e)
+        print(", ".join(e._cause.response.json()['errors']))
+
 
 
