@@ -176,9 +176,8 @@ if __name__ == "__main__":
     parser.add_commands(exposed_methods)
     try:
         parser.dispatch()
-    except packet.baseapi.Error as e:
+    except Exception as e:
         print(e)
-        print(", ".join(e._cause.response.json()['errors']))
 
 
 
